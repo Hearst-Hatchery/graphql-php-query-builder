@@ -1,0 +1,35 @@
+{
+    "name": "hearst-hatchery/graphql-php-query-builder",
+    "description": "PHP Query Builder for GraphQL",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Felton Vaughn",
+            "email": "fvaughn@hearst.com"
+        }
+    ],
+    "require": {},
+    "require-dev": {
+        "codeception/verify": "^1.0",
+        "codeception/base": "^2.5",
+        "friendsofphp/php-cs-fixer": "^2.13"
+    },
+    "scripts": {
+        "lint": "php-cs-fixer fix --diff --dry-run",
+        "fix": "php-cs-fixer --config=.php_cs.dist fix",
+        "build": "codecept -c test/codeception.yml build",
+        "test": "codecept -c test/codeception.yml run",
+        "debug": "codecept -c test/codeception.yml run -vvv",
+        "coverage": [
+            "codecept -c test/codeception.yml run -v --coverage --coverage-html",
+            "open test/codeception/_output/coverage/index.html"
+        ],
+        "coverage-xml": [
+            "codecept -c test/codeception.yml run -v --coverage --coverage-xml"
+        ],
+        "post-install-cmd": [
+            "bash bin/setup.sh"
+        ]
+    }
+}
