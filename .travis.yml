@@ -1,0 +1,24 @@
+language: php
+
+php:
+  - 7.1
+
+cache:
+  directories:
+    - $HOME/.composer/cache/files
+    - $HOME/.composer/cache/vcs
+
+install:
+  - cp $HOME/.phpenv/versions/$(phpenv global)/etc/conf.d/xdebug.ini /tmp # copy xdebug
+  - phpenv config-rm xdebug.ini # remove xdebug for faster composer commands
+  - composer install --classmap-authoritative --no-progress
+
+before_script: composer lint
+
+script:
+  - composer build
+  - phpenv config-add /tmp/xdebug.ini # reenable xdebug for coverage
+  - composer coverage-xml
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash) -c -F php -f ./test/codeception/_output/coverage.xml
