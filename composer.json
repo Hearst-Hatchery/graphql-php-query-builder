@@ -7,6 +7,10 @@
         {
             "name": "Felton Vaughn",
             "email": "fvaughn@hearst.com"
+        },
+        {
+            "name": "Di Tang",
+            "email": "di.tang@hearst.com"
         }
     ],
     "require": {},
