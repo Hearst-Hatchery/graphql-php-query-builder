@@ -38,7 +38,7 @@ class QueryBuilder
     const TYPE_MUTATION = 'mutation';
 
     /**
-     * QueryBuilder constructor.
+     * QueryBuilder constructor
      *
      * @param array $queryObject
      * @param string $field
@@ -53,13 +53,18 @@ class QueryBuilder
         $this->type = $type;
     }
 
-    protected function buildQuery()
+    /**
+     * buildQuery format query type, field, arguments and rendered query string to build full query
+     * that can be used for requesting graphql server
+     * @return string GraphQl query string
+     */
+    public function buildQuery()
     {
         if (empty($this->object)) {
             return '';
         }
 
-        $graphQLQuery = $this->type . "{\n" . $this->field; //content
+        $graphQLQuery = $this->type . "{\n" . $this->field;
         $graphQLQuery .= $this->arguments ? ' ' . $this->formatArguments($this->arguments) . "{\n" : "{\n";
         $graphQLQuery .= $this->renderQueryObject($this->object);
         $graphQLQuery .= "}\n";
@@ -67,29 +72,39 @@ class QueryBuilder
         return $graphQLQuery;
     }
 
+    /**
+     * renderQueryObject loop through given array and convert into graphql query format string
+     * @return string rendered query string
+     */
     protected function renderQueryObject($queryObject = [])
     {
         $query = '';
 
-        foreach ($queryObject as $queryField) {
+        foreach ($queryObject as $queryField => $queryFieldValue) {
             // recursive loop through every node
-            if (is_array($queryField)) {
-                $query .= $this->renderQueryObject($queryField);
+            if (is_array($queryFieldValue)) {
+                $query .= $queryField . " {\n" . $this->renderQueryObject($queryFieldValue) . "}\n";
             } else {
-                $query .= $queryField . "\n";
+                $query .= $queryFieldValue . "\n\n";
             }
         }
 
         return $query;
     }
 
+    /**
+     * formatArguments loop through arguments array and format it to be ready to concatenate with query string
+     * @return string formatted arguments string
+     */
     protected function formatArguments($arguments)
     {
         if ($arguments) {
             $formattedArgument = [];
             foreach ($arguments as $name => $type) {
                 if (is_array($type)) {
-                    $type = '[' . implode(',', $type) . ']';
+                    $type = '["' . implode('","', $type) . '"]';
+                } else {
+                    $type = '"' . $type . '"';
                 }
                 $formattedArgument[] = $name . ': ' . $type;
             }
@@ -99,12 +114,42 @@ class QueryBuilder
     }
 
     /**
+     * @param array $object
+     * @return QueryBuilder
+     */
+    public function setObject($object)
+    {
+        $this->object = $object ?? [];
+        return $this;
+    }
+
+    /**
+     * @param string $field
+     * @return QueryBuilder
+     */
+    public function setField($field)
+    {
+        $this->field = $field ?? '';
+        return $this;
+    }
+
+    /**
      * @param array $arguments
      * @return QueryBuilder
      */
     public function setArguments($arguments)
     {
-        $this->arguments = $arguments;
+        $this->arguments = $arguments ?? [];
+        return $this;
+    }
+
+    /**
+     * @param string $type
+     * @return QueryBuilder
+     */
+    public function setType($type)
+    {
+        $this->type = $type ?? '';
         return $this;
     }
 }
