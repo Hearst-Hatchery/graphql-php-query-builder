@@ -21,4 +21,4 @@ script:
   - composer coverage-xml
 
 after_success:
-  - bash <(curl -s https://codecov.io/bash) -c -F php -f ./test/codeception/_output/coverage.xml
+  - bash <(curl -s https://codecov.io/bash) -f ./test/codeception/_output/coverage.xml

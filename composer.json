@@ -19,6 +19,11 @@
         "codeception/base": "^2.5",
         "friendsofphp/php-cs-fixer": "^2.13"
     },
+    "autoload": {
+        "psr-4": {
+            "GraphQLQueryBuilder\\": "src"
+        }
+    },
     "scripts": {
         "lint": "php-cs-fixer fix --diff --dry-run",
         "fix": "php-cs-fixer --config=.php_cs.dist fix",
