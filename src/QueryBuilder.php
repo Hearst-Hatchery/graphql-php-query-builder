@@ -9,15 +9,14 @@ namespace GraphQLQueryBuilder;
  */
 class QueryBuilder
 {
-    public function __construct()
-    {
-    }
     /**
-     * buildQuery format query type, field, arguments and rendered query string to build full query
-     * that can be used for requesting graphql server
-     * @return string GraphQl query string
+     * String of graphQL fields that can refer to Objects
+     * @var string
      */
-    public function buildQuery()
+    public $field;
+
+    public function __construct($field = '')
     {
+        $this->field = $field;
     }
 }

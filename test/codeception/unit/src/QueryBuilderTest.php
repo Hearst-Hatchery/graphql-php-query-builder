@@ -4,7 +4,7 @@ namespace GraphQLQueryBuilder\Tests;
 use GraphQLQueryBuilder\QueryBuilder;
 
 /**
- *  @coversDefaultClass GraphQLClient\Client
+ *  @coversDefaultClass GraphQLQueryBuilder\QueryBuilder
  */
 class QueryBuilderTest extends \Codeception\Test\Unit
 {
@@ -17,5 +17,16 @@ class QueryBuilderTest extends \Codeception\Test\Unit
     {
         // unset the blank class after each test
         unset($this->queryBuilder);
+    }
+
+    /**
+     * testConstruct tests that the __construct method
+     * properly sets up various class properties.
+     *
+     * @covers ::__construct
+     */
+    public function testConstructor()
+    {
+        verify($this->queryBuilder->field)->equals('');
     }
 }
