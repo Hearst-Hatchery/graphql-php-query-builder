@@ -47,10 +47,10 @@ class QueryBuilder
      */
     public function __construct($queryObject = [], $field = '', $arguments = [], $type = self::TYPE_QUERY)
     {
-        $this->object = $queryObject;
-        $this->field = $field;
-        $this->arguments = $arguments;
-        $this->type = $type;
+        $this->setObject($queryObject);
+        $this->setField($field);
+        $this->setArguments($arguments);
+        $this->setType($type);
     }
 
     /**
@@ -64,10 +64,10 @@ class QueryBuilder
             return '';
         }
 
-        $graphQLQuery = $this->type . "{\n" . $this->field;
+        $graphQLQuery = $this->type . "{\n\t" . $this->field;
         $graphQLQuery .= $this->arguments ? ' ' . $this->formatArguments($this->arguments) . "{\n" : "{\n";
-        $graphQLQuery .= $this->renderQueryObject($this->object);
-        $graphQLQuery .= "}\n";
+        $graphQLQuery .= $this->renderQueryObject($this->object, 2);
+        $graphQLQuery .= "\t}\n}\n";
 
         return $graphQLQuery;
     }
@@ -76,16 +76,21 @@ class QueryBuilder
      * renderQueryObject loop through given array and convert into graphql query format string
      * @return string rendered query string
      */
-    protected function renderQueryObject($queryObject = [])
+    protected function renderQueryObject($queryObject = [], $tabCount = 1)
     {
         $query = '';
+        $tab = "\t";
 
         foreach ($queryObject as $queryField => $queryFieldValue) {
             // recursive loop through every node
             if (is_array($queryFieldValue)) {
-                $query .= $queryField . " {\n" . $this->renderQueryObject($queryFieldValue) . "}\n";
+                $query .= str_repeat($tab, $tabCount) . $queryField . "{\n";
+                $tabCount++;
+                $query .= $this->renderQueryObject($queryFieldValue, $tabCount);
+                $tabCount--;
+                $query .= str_repeat($tab, $tabCount) . "}\n" ;
             } else {
-                $query .= $queryFieldValue . "\n\n";
+                $query .= str_repeat($tab, $tabCount) . $queryFieldValue . "\n";
             }
         }
 

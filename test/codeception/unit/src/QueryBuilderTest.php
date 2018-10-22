@@ -2,6 +2,7 @@
 namespace GraphQLQueryBuilder\Tests;
 
 use GraphQLQueryBuilder\QueryBuilder;
+use \Codeception\Util\Stub;
 
 /**
  *  @coversDefaultClass GraphQLQueryBuilder\QueryBuilder
@@ -27,6 +28,25 @@ class QueryBuilderTest extends \Codeception\Test\Unit
      */
     public function testConstructor()
     {
-        verify($this->queryBuilder->field)->equals('');
+        $queryBuilder = Stub::make('GraphQLQueryBuilder\QueryBuilder', [
+            'setObject' => function () {
+                // Verify this method was called
+                verify(true)->true();
+            },
+            'setField' => function () {
+                // Verify this method was called
+                verify(true)->true();
+            },
+            'setArguments' => function () {
+                // Verify this method was called
+                verify(true)->true();
+            },
+            'setType' => function () {
+                // Verify this method was called
+                verify(true)->true();
+            },
+        ]);
+
+        $queryBuilder->__construct();
     }
 }
