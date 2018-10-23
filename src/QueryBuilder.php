@@ -67,7 +67,7 @@ class QueryBuilder
         $graphQLQuery = $this->type . "{\n\t" . $this->field;
         $graphQLQuery .= $this->arguments ? ' ' . $this->formatArguments($this->arguments) . "{\n" : "{\n";
         $graphQLQuery .= $this->renderQueryObject($this->object, 2);
-        $graphQLQuery .= "\t}\n}\n";
+        $graphQLQuery .= "\t}\n}";
 
         return $graphQLQuery;
     }
@@ -83,10 +83,15 @@ class QueryBuilder
 
         foreach ($queryObject as $queryField => $queryFieldValue) {
             // recursive loop through every node
-            if (is_array($queryFieldValue)) {
+            if (!is_numeric($queryField)) {
                 $query .= str_repeat($tab, $tabCount) . $queryField . "{\n";
                 $tabCount++;
-                $query .= $this->renderQueryObject($queryFieldValue, $tabCount);
+
+                if (is_array($queryFieldValue)) {
+                    $query .= $this->renderQueryObject($queryFieldValue, $tabCount);
+                } else {
+                    $query .= str_repeat($tab, $tabCount) . $queryFieldValue . "\n";
+                }
                 $tabCount--;
                 $query .= str_repeat($tab, $tabCount) . "}\n" ;
             } else {

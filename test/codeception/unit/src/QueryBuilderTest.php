@@ -9,15 +9,22 @@ use \Codeception\Util\Stub;
  */
 class QueryBuilderTest extends \Codeception\Test\Unit
 {
+    // An instance of the behavior to be tested
+    private $queryBuilder;
+    /**
+     * @var \UnitTester
+     */
+    protected $tester;
+
     protected function _before()
     {
-        $this->queryBuilder = new QueryBuilder();
+        $this->querybuilder = Stub::make('GraphQLQueryBuilder\QueryBuilder');
     }
 
     protected function _after()
     {
         // unset the blank class after each test
-        unset($this->queryBuilder);
+        unset($this->querybuilder);
     }
 
     /**
@@ -48,5 +55,53 @@ class QueryBuilderTest extends \Codeception\Test\Unit
         ]);
 
         $queryBuilder->__construct();
+    }
+
+    /**
+     * testSetObject tests that setObject set array object to current QueryBuilder
+     *
+     * @covers ::setObject()
+     */
+    public function testSetObject()
+    {
+        $object = ['id' => 123, 'data'];
+        $output = $this->querybuilder->setObject($object);
+        verify($output)->equals($this->querybuilder);
+    }
+
+    /**
+     * testSetField tests that setField set field string to current QueryBuilder
+     *
+     * @covers ::setField()
+     */
+    public function testSetField()
+    {
+        $field = 'foo';
+        $output = $this->querybuilder->setField($field);
+        verify($output)->equals($this->querybuilder);
+    }
+
+    /**
+     * testSetArguments tests that setArguments set arguments to current QueryBuilder
+     *
+     * @covers ::setArguments()
+     */
+    public function testSetArguments()
+    {
+        $arguments = ['id' => 123];
+        $output = $this->querybuilder->setArguments($arguments);
+        verify($output)->equals($this->querybuilder);
+    }
+
+    /**
+     * testSetType tests that setType set type string to current QueryBuilder
+     *
+     * @covers ::setType()
+     */
+    public function testSetType()
+    {
+        $type = 'query';
+        $output = $this->querybuilder->setType($type);
+        verify($output)->equals($this->querybuilder);
     }
 }
