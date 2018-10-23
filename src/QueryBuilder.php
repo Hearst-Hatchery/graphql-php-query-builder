@@ -76,7 +76,7 @@ class QueryBuilder
      * renderQueryObject loop through given array and convert into graphql query format string
      * @return string rendered query string
      */
-    protected function renderQueryObject($queryObject = [], $tabCount = 1)
+    protected function renderQueryObject($queryObject = [], $tabCount = 0)
     {
         $query = '';
         $tab = "\t";

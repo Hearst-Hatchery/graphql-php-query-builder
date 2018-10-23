@@ -2,7 +2,8 @@
 namespace GraphQLQueryBuilder\Tests;
 
 use GraphQLQueryBuilder\QueryBuilder;
-use \Codeception\Util\Stub;
+use Codeception\Util\Stub;
+use Codeception\Util\ReflectionHelper;
 
 /**
  *  @coversDefaultClass GraphQLQueryBuilder\QueryBuilder
@@ -55,6 +56,133 @@ class QueryBuilderTest extends \Codeception\Test\Unit
         ]);
 
         $queryBuilder->__construct();
+    }
+
+    /**
+     * testBuildQuery tests that buildQuery returns graphQL query
+     *
+     * @covers ::buildQuery()
+     */
+    public function testBuildQuery()
+    {
+        $arguments = ['id' => 123];
+        $object = ['id' => 123, 'type', 'data' => ['size', 'date']];
+
+        $this->querybuilder->setObject($object);
+        $this->querybuilder->setArguments($arguments);
+        $this->querybuilder->setField('image');
+        $this->querybuilder->setType('query');
+
+        $output = $this->querybuilder->buildQuery();
+        $expected = <<<Query
+query{
+	image (id: "123") {
+		id{
+			123
+		}
+		type
+		data{
+			size
+			date
+		}
+	}
+}
+Query;
+        expect($output)->equals($expected);
+    }
+
+    /**
+     * testBuildQueryEmpty tests that buildQuery returns empty string when no array passing to be converted
+     *
+     * @covers ::buildQuery()
+     */
+    public function testBuildQueryEmpty()
+    {
+        $object = '';
+
+        $this->querybuilder->setObject($object);
+
+        $output = $this->querybuilder->buildQuery();
+
+        expect($output)->equals('');
+    }
+
+    /**
+     * testFormatArguments tests that formatArguments format arguments array that is ready to merge into graphQL query
+     *
+     * @covers ::formatArguments()
+     * @dataProvider argumentsProvider
+     */
+    public function testFormatArguments($arguments, $expected)
+    {
+        $output = ReflectionHelper::invokePrivateMethod($this->querybuilder, 'formatArguments', [$arguments]);
+        expect($output)->equals($expected);
+    }
+
+    public function argumentsProvider()
+    {
+        return [
+            'no arguments passed in' => [
+                'arguments' => [],
+                'expected' => '',
+            ],
+            'simple array, singular argument pass in' => [
+                'arguments' => [
+                    'id' => 123,
+                ],
+                'expected' => '(id: "123") ',
+            ],
+            'multi arguments array passed in' => [
+                'arguments' => [
+                    'ids' => [
+                        123,
+                        456,
+                    ],
+                    'type' => 'image',
+                ],
+                'expected' => '(ids: ["123","456"], type: "image") ',
+            ],
+        ];
+    }
+
+    /**
+     * testRenderQueryObject tests that renderQueryObject
+     *
+     * @covers ::renderQueryObject()
+     * @dataProvider queryObjectProvider
+     */
+    public function testRenderQueryObject($queryObject, $expected)
+    {
+        $output = ReflectionHelper::invokePrivateMethod($this->querybuilder, 'renderQueryObject', [$queryObject]);
+        expect($output)->equals($expected);
+    }
+
+    public function queryObjectProvider()
+    {
+        return [
+            'empty array passed in' => [
+                'queryObject' => [],
+                'expected' => '',
+            ],
+            'simple array, singular argument pass in' => [
+                'queryObject' => [
+                    'id',
+                    'type',
+                ],
+                'expected' => "id\ntype\n",
+            ],
+            'multi arguments array passed in' => [
+                'queryObject' => [
+                    'id' => 123,
+                    'type' => [
+                        'image',
+                        'video',
+                    ],
+                    'date',
+                ],
+                'expected' => "id{\n\t123\n}\ntype{\n\timage\n\tvideo\n}\ndate\n",
+            ],
+        ];
     }
 
     /**
