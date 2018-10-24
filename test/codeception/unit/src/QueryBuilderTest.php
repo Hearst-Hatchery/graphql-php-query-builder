@@ -10,8 +10,6 @@ use Codeception\Util\ReflectionHelper;
  */
 class QueryBuilderTest extends \Codeception\Test\Unit
 {
-    // An instance of the behavior to be tested
-    private $queryBuilder;
     /**
      * @var \UnitTester
      */
@@ -37,7 +35,7 @@ class QueryBuilderTest extends \Codeception\Test\Unit
     public function testConstructor()
     {
         $queryBuilder = Stub::make('GraphQLQueryBuilder\QueryBuilder', [
-            'setObject' => function () {
+            'setQueryObject' => function () {
                 // Verify this method was called
                 verify(true)->true();
             },
@@ -68,14 +66,14 @@ class QueryBuilderTest extends \Codeception\Test\Unit
         $arguments = ['id' => 123];
         $object = ['id' => 123, 'type', 'data' => ['size', 'date']];
 
-        $this->querybuilder->setObject($object);
+        $this->querybuilder->setQueryObject($object);
         $this->querybuilder->setArguments($arguments);
         $this->querybuilder->setField('image');
         $this->querybuilder->setType('query');
 
         $output = $this->querybuilder->buildQuery();
         $expected = <<<Query
-query{
+{
 	image (id: "123") {
 		id{
 			123
@@ -100,7 +98,7 @@ Query;
     {
         $object = '';
 
-        $this->querybuilder->setObject($object);
+        $this->querybuilder->setQueryObject($object);
 
         $output = $this->querybuilder->buildQuery();
 
@@ -188,12 +186,12 @@ Query;
     /**
      * testSetObject tests that setObject set array object to current QueryBuilder
      *
-     * @covers ::setObject()
+     * @covers ::setQueryObject()
      */
     public function testSetObject()
     {
         $object = ['id' => 123, 'data'];
-        $output = $this->querybuilder->setObject($object);
+        $output = $this->querybuilder->setQueryObject($object);
         verify($output)->equals($this->querybuilder);
     }
 

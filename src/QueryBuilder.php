@@ -13,13 +13,13 @@ class QueryBuilder
      * PHP array that need to be converted and built as graphQL server supported query
      * @var array
      */
-    protected $object;
+    protected $queryObject;
 
     /**
      * String of graphQL fields that can refer to Objects
      * @var string
      */
-    protected $field;
+    protected $fields;
 
     /**
      * Set of arguments for fetching data eg. content(ID: '1234')
@@ -40,70 +40,74 @@ class QueryBuilder
     /**
      * QueryBuilder constructor
      *
-     * @param array $queryObject
-     * @param string $field
+     * @param array $query
+     * @param string $fields
      * @param array $arguments
      * @param string $type
      */
-    public function __construct($queryObject = [], $field = '', $arguments = [], $type = self::TYPE_QUERY)
+    public function __construct($query = [], $fields = '', $arguments = [], $type = self::TYPE_QUERY)
     {
-        $this->setObject($queryObject);
-        $this->setField($field);
+        $this->setQueryObject($query);
+        $this->setField($fields);
         $this->setArguments($arguments);
         $this->setType($type);
     }
 
     /**
      * buildQuery format query type, field, arguments and rendered query string to build full query
-     * that can be used for requesting graphql server
+     * that can be used for requesting graphQL server
      * @return string GraphQl query string
      */
     public function buildQuery()
     {
-        if (empty($this->object)) {
+        if (empty($this->queryObject)) {
             return '';
         }
 
-        $graphQLQuery = $this->type . "{\n\t" . $this->field;
+        $graphQLQuery = "{\n\t" . $this->fields;
         $graphQLQuery .= $this->arguments ? ' ' . $this->formatArguments($this->arguments) . "{\n" : "{\n";
-        $graphQLQuery .= $this->renderQueryObject($this->object, 2);
+        $graphQLQuery .= $this->renderQueryObject($this->queryObject, 2);
         $graphQLQuery .= "\t}\n}";
 
         return $graphQLQuery;
     }
 
     /**
-     * renderQueryObject loop through given array and convert into graphql query format string
+     * renderQueryObject loop through given query array and convert into graphQL query format string
+     *
+     * @param array $query
+     * @param int $tabCount
      * @return string rendered query string
      */
-    protected function renderQueryObject($queryObject = [], $tabCount = 0)
+    protected function renderQueryObject($query = [], $tabCount = 0)
     {
-        $query = '';
+        $queryString = '';
         $tab = "\t";
 
-        foreach ($queryObject as $queryField => $queryFieldValue) {
+        foreach ($query as $queryField => $queryFieldValue) {
             // recursive loop through every node
             if (!is_numeric($queryField)) {
-                $query .= str_repeat($tab, $tabCount) . $queryField . "{\n";
+                $queryString .= str_repeat($tab, $tabCount) . $queryField . "{\n";
                 $tabCount++;
 
                 if (is_array($queryFieldValue)) {
-                    $query .= $this->renderQueryObject($queryFieldValue, $tabCount);
+                    $queryString .= $this->renderQueryObject($queryFieldValue, $tabCount);
                 } else {
-                    $query .= str_repeat($tab, $tabCount) . $queryFieldValue . "\n";
+                    $queryString .= str_repeat($tab, $tabCount) . $queryFieldValue . "\n";
                 }
                 $tabCount--;
-                $query .= str_repeat($tab, $tabCount) . "}\n" ;
+                $queryString .= str_repeat($tab, $tabCount) . "}\n" ;
             } else {
-                $query .= str_repeat($tab, $tabCount) . $queryFieldValue . "\n";
+                $queryString .= str_repeat($tab, $tabCount) . $queryFieldValue . "\n";
             }
         }
 
-        return $query;
+        return $queryString;
     }
 
     /**
      * formatArguments loop through arguments array and format it to be ready to concatenate with query string
+     * @param array $arguments
      * @return string formatted arguments string
      */
     protected function formatArguments($arguments)
@@ -124,22 +128,22 @@ class QueryBuilder
     }
 
     /**
-     * @param array $object
+     * @param array $queryObject
      * @return QueryBuilder
      */
-    public function setObject($object)
+    public function setQueryObject($queryObject)
     {
-        $this->object = $object ?? [];
+        $this->queryObject = $queryObject ?? [];
         return $this;
     }
 
     /**
-     * @param string $field
+     * @param string $fields
      * @return QueryBuilder
      */
-    public function setField($field)
+    public function setField($fields)
     {
-        $this->field = $field ?? '';
+        $this->fields = $fields ?? '';
         return $this;
     }
 
