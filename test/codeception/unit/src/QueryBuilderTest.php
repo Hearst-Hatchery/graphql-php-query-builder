@@ -39,7 +39,7 @@ class QueryBuilderTest extends \Codeception\Test\Unit
                 // Verify this method was called
                 verify(true)->true();
             },
-            'setField' => function () {
+            'setFields' => function () {
                 // Verify this method was called
                 verify(true)->true();
             },
@@ -68,7 +68,7 @@ class QueryBuilderTest extends \Codeception\Test\Unit
 
         $this->querybuilder->setQueryObject($object);
         $this->querybuilder->setArguments($arguments);
-        $this->querybuilder->setField('image');
+        $this->querybuilder->setFields('image');
         $this->querybuilder->setType('query');
 
         $output = $this->querybuilder->buildQuery();
@@ -196,14 +196,14 @@ Query;
     }
 
     /**
-     * testSetField tests that setField set field string to current QueryBuilder
+     * testSetField tests that setFields set field string to current QueryBuilder
      *
-     * @covers ::setField()
+     * @covers ::setFields()
      */
-    public function testSetField()
+    public function testSetFields()
     {
         $field = 'foo';
-        $output = $this->querybuilder->setField($field);
+        $output = $this->querybuilder->setFields($field);
         verify($output)->equals($this->querybuilder);
     }
 

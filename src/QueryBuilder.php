@@ -48,7 +48,7 @@ class QueryBuilder
     public function __construct($query = [], $fields = '', $arguments = [], $type = self::TYPE_QUERY)
     {
         $this->setQueryObject($query);
-        $this->setField($fields);
+        $this->setFields($fields);
         $this->setArguments($arguments);
         $this->setType($type);
     }
@@ -141,7 +141,7 @@ class QueryBuilder
      * @param string $fields
      * @return QueryBuilder
      */
-    public function setField($fields)
+    public function setFields($fields)
     {
         $this->fields = $fields ?? '';
         return $this;
