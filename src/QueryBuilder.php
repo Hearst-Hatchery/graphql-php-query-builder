@@ -1,4 +1,5 @@
 <?php
+
 namespace GraphQLQueryBuilder;
 
 /**
@@ -16,10 +17,16 @@ class QueryBuilder
     protected $queryObject;
 
     /**
-     * String of graphQL fields that can refer to Objects
+     * String of graphQL objectField that can refer to Objects type defined in graphql server
      * @var string
      */
-    protected $fields;
+    protected $objectField;
+
+    /**
+     * String of graphQL aliases set to certain field
+     * @var string
+     */
+    protected $alias;
 
     /**
      * Set of arguments for fetching data eg. content(ID: '1234')
@@ -28,44 +35,57 @@ class QueryBuilder
     protected $arguments;
 
     /**
+     * Array of graphQL fields that intend to retrieve
+     * @var array
+     */
+    protected $fields;
+
+    /**
      * String of graphQL request type that can
      * @var string
      */
-    protected $type;
+    protected $queryType;
 
-    // TODO: Add Fragments & Variables for full query and mutation
     const TYPE_QUERY = 'query';
     const TYPE_MUTATION = 'mutation';
 
     /**
      * QueryBuilder constructor
      *
-     * @param array $query
-     * @param string $fields
-     * @param array $arguments
-     * @param string $type
+     * @param array  $query
+     * @param string $objectField
+     * @param array  $arguments
+     * @param string $alias
+     * @param string $queryType
      */
-    public function __construct($query = [], $fields = '', $arguments = [], $type = self::TYPE_QUERY)
+    public function __construct($query = [], $objectField = '', $arguments = [], $alias = '', $queryType = self::TYPE_QUERY)
     {
         $this->setQueryObject($query);
-        $this->setFields($fields);
+        $this->setObjectField($objectField);
         $this->setArguments($arguments);
-        $this->setType($type);
+        $this->setAliases($alias);
+        $this->setQueryType($queryType);
     }
 
     /**
      * buildQuery format query type, field, arguments and rendered query string to build full query
      * that can be used for requesting graphQL server
+     *
+     * @param string $operationName
      * @return string GraphQl query string
      */
-    public function buildQuery()
+    public function buildQuery($operationName = '')
     {
         if (empty($this->queryObject)) {
             return '';
         }
 
-        $graphQLQuery = "{\n\t" . $this->fields;
+        $graphQLQuery = $this->queryType ? $this->queryType . ' ' : 'query ';
+        $graphQLQuery .= $operationName ? $operationName : '';
+
+        $graphQLQuery .= "{\n\t" . $this->objectField;
         $graphQLQuery .= $this->arguments ? ' ' . $this->formatArguments($this->arguments) . "{\n" : "{\n";
+        $graphQLQuery .= $this->alias ? $this->alias . ':' : '';
         $graphQLQuery .= $this->renderQueryObject($this->queryObject, 2);
         $graphQLQuery .= "\t}\n}";
 
@@ -128,6 +148,19 @@ class QueryBuilder
     }
 
     /**
+     * setAliases is to set aliases for defined field
+     * so directly query for the same field wth different arguments can be sent the same time
+     *
+     * @param string $alias
+     * @return QueryBuilder
+     */
+    public function setAliases($alias)
+    {
+        $this->alias = $alias ?? '';
+        return $this;
+    }
+
+    /**
      * @param array $queryObject
      * @return QueryBuilder
      */
@@ -138,12 +171,12 @@ class QueryBuilder
     }
 
     /**
-     * @param string $fields
+     * @param string $objectField
      * @return QueryBuilder
      */
-    public function setFields($fields)
+    public function setObjectField($objectField)
     {
-        $this->fields = $fields ?? '';
+        $this->objectField = $objectField ?? '';
         return $this;
     }
 
@@ -158,12 +191,12 @@ class QueryBuilder
     }
 
     /**
-     * @param string $type
+     * @param string $queryType
      * @return QueryBuilder
      */
-    public function setType($type)
+    public function setQueryType($queryType)
     {
-        $this->type = $type ?? '';
+        $this->queryType = $queryType ?? '';
         return $this;
     }
 }

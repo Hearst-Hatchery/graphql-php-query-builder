@@ -39,7 +39,7 @@ class QueryBuilderTest extends \Codeception\Test\Unit
                 // Verify this method was called
                 verify(true)->true();
             },
-            'setFields' => function () {
+            'setObjectField' => function () {
                 // Verify this method was called
                 verify(true)->true();
             },
@@ -47,7 +47,7 @@ class QueryBuilderTest extends \Codeception\Test\Unit
                 // Verify this method was called
                 verify(true)->true();
             },
-            'setType' => function () {
+            'setQueryType' => function () {
                 // Verify this method was called
                 verify(true)->true();
             },
@@ -68,12 +68,12 @@ class QueryBuilderTest extends \Codeception\Test\Unit
 
         $this->querybuilder->setQueryObject($object);
         $this->querybuilder->setArguments($arguments);
-        $this->querybuilder->setFields('image');
-        $this->querybuilder->setType('query');
+        $this->querybuilder->setObjectField('image');
+        $this->querybuilder->setQueryType('query');
 
         $output = $this->querybuilder->buildQuery();
         $expected = <<<Query
-{
+query {
 	image (id: "123") {
 		id{
 			123
@@ -184,11 +184,11 @@ Query;
     }
 
     /**
-     * testSetObject tests that setObject set array object to current QueryBuilder
+     * testSetQueryObject tests that setObject set array object to current QueryBuilder
      *
      * @covers ::setQueryObject()
      */
-    public function testSetObject()
+    public function testSetQueryObject()
     {
         $object = ['id' => 123, 'data'];
         $output = $this->querybuilder->setQueryObject($object);
@@ -196,14 +196,14 @@ Query;
     }
 
     /**
-     * testSetField tests that setFields set field string to current QueryBuilder
+     * testSetObjectField tests that setObjectField set field string to current QueryBuilder
      *
-     * @covers ::setFields()
+     * @covers ::setObjectField()
      */
-    public function testSetFields()
+    public function testSetObjectField()
     {
         $field = 'foo';
-        $output = $this->querybuilder->setFields($field);
+        $output = $this->querybuilder->setObjectField($field);
         verify($output)->equals($this->querybuilder);
     }
 
@@ -220,14 +220,14 @@ Query;
     }
 
     /**
-     * testSetType tests that setType set type string to current QueryBuilder
+     * testSetQueryType tests that setQueryType set type string to current QueryBuilder
      *
-     * @covers ::setType()
+     * @covers ::setQueryType()
      */
-    public function testSetType()
+    public function testSetQueryType()
     {
         $type = 'query';
-        $output = $this->querybuilder->setType($type);
+        $output = $this->querybuilder->setQueryType($type);
         verify($output)->equals($this->querybuilder);
     }
 }
