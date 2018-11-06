@@ -23,7 +23,7 @@ class Field extends QueryBuilder
      */
     public function __construct($alias = '')
     {
-        $this->setAliases($alias);
+        $this->setAlias($alias);
     }
 
     /**
@@ -33,7 +33,7 @@ class Field extends QueryBuilder
      * @param string $alias
      * @return Field
      */
-    public function setAliases($alias)
+    public function setAlias($alias)
     {
         $this->alias = $alias ?? '';
         return $this;
@@ -53,9 +53,9 @@ class Field extends QueryBuilder
             return '';
         }
 
-        $fieldQuery = $this->objectField;
+        $fieldQuery = $this->alias ? $this->alias . ':' : '';
+        $fieldQuery .= $this->objectField;
         $fieldQuery .= $this->arguments ? ' ' . $this->formatArguments($this->arguments) . "{\n" : "{\n";
-        $fieldQuery .= $this->alias ? $this->alias . ':' : '';
         $fieldQuery .= $this->renderQueryObject($this->queryObject, $depth);
         $fieldQuery .= str_repeat("\t", $depth - 1) . '}';
 
