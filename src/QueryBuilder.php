@@ -23,22 +23,10 @@ class QueryBuilder
     protected $objectField;
 
     /**
-     * String of graphQL aliases set to certain field
-     * @var string
-     */
-    protected $alias;
-
-    /**
      * Set of arguments for fetching data eg. content(ID: '1234')
      * @var array
      */
     protected $arguments;
-
-    /**
-     * Array of graphQL fields that intend to retrieve
-     * @var array
-     */
-    protected $fields;
 
     /**
      * String of graphQL request type that can
@@ -55,15 +43,13 @@ class QueryBuilder
      * @param array  $query
      * @param string $objectField
      * @param array  $arguments
-     * @param string $alias
      * @param string $queryType
      */
-    public function __construct($query = [], $objectField = '', $arguments = [], $alias = '', $queryType = self::TYPE_QUERY)
+    public function __construct($query = [], $objectField = '', $arguments = [], $queryType = self::TYPE_QUERY)
     {
         $this->setQueryObject($query);
         $this->setObjectField($objectField);
         $this->setArguments($arguments);
-        $this->setAliases($alias);
         $this->setQueryType($queryType);
     }
 
@@ -85,7 +71,6 @@ class QueryBuilder
 
         $graphQLQuery .= "{\n\t" . $this->objectField;
         $graphQLQuery .= $this->arguments ? ' ' . $this->formatArguments($this->arguments) . "{\n" : "{\n";
-        $graphQLQuery .= $this->alias ? $this->alias . ':' : '';
         $graphQLQuery .= $this->renderQueryObject($this->queryObject, 2);
         $graphQLQuery .= "\t}\n}";
 
@@ -145,19 +130,6 @@ class QueryBuilder
             return '(' . implode(', ', $formattedArgument) . ') ';
         }
         return '';
-    }
-
-    /**
-     * setAliases is to set aliases for defined field
-     * so directly query for the same field wth different arguments can be sent the same time
-     *
-     * @param string $alias
-     * @return QueryBuilder
-     */
-    public function setAliases($alias)
-    {
-        $this->alias = $alias ?? '';
-        return $this;
     }
 
     /**

@@ -31,8 +31,18 @@ class Fragment extends QueryBuilder
      * and return the string that can be formatted along with query
      * @return string fragment string
      */
-    protected function formatInlineFragment()
+    public function formatInlineFragment()
     {
         return '... on ' . $this->type;
+    }
+
+    /**
+     * @param string $type
+     * @return Fragment
+     */
+    public function setFragmentType($type)
+    {
+        $this->type = $type ?? '';
+        return $this;
     }
 }
