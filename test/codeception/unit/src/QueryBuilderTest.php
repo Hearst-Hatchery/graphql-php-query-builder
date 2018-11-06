@@ -63,7 +63,7 @@ class QueryBuilderTest extends \Codeception\Test\Unit
      */
     public function testBuildQuery()
     {
-        $arguments = ['id' => 123];
+        $arguments = ['id' => 'foo'];
         $object = ['id' => 123, 'type', 'data' => ['size', 'date']];
 
         $this->querybuilder->setQueryObject($object);
@@ -74,7 +74,7 @@ class QueryBuilderTest extends \Codeception\Test\Unit
         $output = $this->querybuilder->buildQuery();
         $expected = <<<Query
 query {
-	image (id: "123") {
+	image (id: "foo") {
 		id{
 			123
 		}
@@ -126,7 +126,7 @@ Query;
             ],
             'simple array, singular argument pass in' => [
                 'arguments' => [
-                    'id' => 123,
+                    'id' => '123',
                 ],
                 'expected' => '(id: "123") ',
             ],
@@ -138,7 +138,7 @@ Query;
                     ],
                     'type' => 'image',
                 ],
-                'expected' => '(ids: ["123","456"], type: "image") ',
+                'expected' => '(ids: [123,456], type: "image") ',
             ],
         ];
     }

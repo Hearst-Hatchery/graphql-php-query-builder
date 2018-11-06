@@ -121,9 +121,9 @@ class QueryBuilder
             $formattedArgument = [];
             foreach ($arguments as $name => $type) {
                 if (is_array($type)) {
-                    $type = '["' . implode('","', $type) . '"]';
+                    $type = gettype($type) === 'string' ? '["' . implode('","', $type) . '"]' : '[' . implode(',', $type) . ']' ;
                 } else {
-                    $type = '"' . $type . '"';
+                    $type = gettype($type) === 'string' ? '"' . $type . '"' : $type ;
                 }
                 $formattedArgument[] = $name . ': ' . $type;
             }

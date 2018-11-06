@@ -46,7 +46,7 @@ class FieldTest extends \Codeception\Test\Unit
      */
     public function testBuildQuery()
     {
-        $arguments = ['id' => 123];
+        $arguments = ['id' => 'foo'];
         $queryObject = ['id' => 123, 'type', 'data' => ['size', 'date']];
         $objectField = 'test';
 
@@ -59,7 +59,7 @@ class FieldTest extends \Codeception\Test\Unit
 
         $output = $field->buildQuery();
         $expected = <<<Query
-alias:test (id: "123") {
+alias:test (id: "foo") {
 	id{
 		123
 	}
