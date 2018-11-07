@@ -151,7 +151,7 @@ Query;
     }
 
     /**
-     * testRenderQueryObject tests that renderQueryObject
+     * testRenderQueryObject tests that renderQueryObject format array object into graphql query without tabs
      *
      * @covers ::renderQueryObject()
      * @dataProvider queryObjectProvider
@@ -191,7 +191,8 @@ Query;
     }
 
     /**
-     * testRenderQueryObjectPrettify tests that renderQueryObjectPrettify
+     * testRenderQueryObjectPrettify tests that renderQueryObjectPrettify format array object into
+     * pretty graphql format string with tabs
      *
      * @covers ::renderQueryObjectPrettify()
      * @dataProvider queryObjectPrettifyProvider

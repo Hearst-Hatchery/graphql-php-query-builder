@@ -20,10 +20,14 @@ class Field extends QueryBuilder
      * Field constructor
      *
      * @param string $alias
+     * @param array  $arguments
+     * @param string $objectField
      */
-    public function __construct($alias = '')
+    public function __construct($alias = '', $arguments = [], $objectField = '')
     {
         $this->setAlias($alias);
+        $this->setArguments($arguments);
+        $this->setObjectField($objectField);
     }
 
     /**
@@ -40,25 +44,17 @@ class Field extends QueryBuilder
     }
 
     /**
-     * buildQuery format query type, field, arguments and rendered query string to build full query
-     * that can be used for requesting graphQL server
+     * formatFieldsHeading is to format heading signature for field
+     * and return the string that can be formatted along with query
      *
-     * @param boolean $prettify
-     * @param int $depth
-     * @return string GraphQl query string
+     * @return string field string
      */
-    public function buildQuery($prettify = false, $depth = 1)
+    public function formatFieldsHeading()
     {
-        if (empty($this->queryObject)) {
-            return '';
-        }
+        $fieldsHeading = $this->alias ? $this->alias . ':' : '';
+        $fieldsHeading .= $this->objectField;
+        $fieldsHeading .= $this->arguments ? ' ' . $this->formatArguments($this->arguments): '';
 
-        $fieldQuery = $this->alias ? $this->alias . ':' : '';
-        $fieldQuery .= $this->objectField;
-        $fieldQuery .= $this->arguments ? ' ' . $this->formatArguments($this->arguments) . "{\n" : "{\n";
-        $fieldQuery .= $prettify === true ? $this->renderQueryObjectPrettify($this->queryObject, $depth) . str_repeat("\t", $depth - 1) : $this->renderQueryObject($this->queryObject);
-        $fieldQuery .= '}';
-
-        return $fieldQuery;
+        return $fieldsHeading;
     }
 }

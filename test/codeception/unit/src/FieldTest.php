@@ -40,59 +40,20 @@ class FieldTest extends \Codeception\Test\Unit
     }
 
     /**
-     * testBuildQuery tests that buildQuery returns graphQL query
+     * testFormatFieldsHeading tests that formatFieldsHeading format field signature line with the right format
      *
-     * @covers ::buildQuery()
+     * @covers ::formatFieldsHeading()
      */
-    public function testBuildQuery()
+    public function testFormatFieldsHeading()
     {
-        $arguments = ['id' => 'foo'];
-        $queryObject = ['id' => 123, 'type', 'data' => ['size', 'date']];
-        $objectField = 'test';
-
         $field = Stub::make('GraphQLQueryBuilder\Field');
 
-        $field->setAlias('alias');
-        $field->setQueryObject($queryObject);
-        $field->setArguments($arguments);
-        $field->setObjectField($objectField);
+        $field->setAlias('foo');
+        $field->setArguments(['id' => 123]);
+        $field->setObjectField('bar');
 
-        // test query result when prettify is true
-        $outputPrettify = $field->buildQuery(true);
-        $expected = <<<Query
-alias:test (id: "foo") {
-	id{
-		123
-	}
-	type
-	data{
-		size
-		date
-	}
-}
-Query;
-        expect($outputPrettify)->equals($expected);
+        $output = $field->formatFieldsHeading();
 
-        // test query result when prettify is false
-        $output = $field->buildQuery(false);
-        $expected = "alias:test (id: \"foo\") {\nid{\n123\n}\ntype\ndata{\nsize\ndate\n}\n}";
-        expect($output)->equals($expected);
-    }
-
-    /**
-     * testBuildQueryEmpty tests that buildQuery returns empty string when no array passing to be converted
-     *
-     * @covers ::buildQuery()
-     */
-    public function testBuildQueryEmpty()
-    {
-        $object = '';
-
-        $field = Stub::make('GraphQLQueryBuilder\Field');
-        $field->setQueryObject($object);
-
-        $output = $field->buildQuery();
-
-        expect($output)->equals('');
+        verify($output)->equals('foo:bar (id: 123) ');
     }
 }

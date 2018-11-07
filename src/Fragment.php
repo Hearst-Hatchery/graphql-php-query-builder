@@ -23,7 +23,7 @@ class Fragment extends QueryBuilder
      */
     public function __construct($type = '')
     {
-        $this->type = $type;
+        $this->setFragmentType($type);
     }
 
     /**
