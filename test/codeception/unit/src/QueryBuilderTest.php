@@ -71,7 +71,8 @@ class QueryBuilderTest extends \Codeception\Test\Unit
         $this->querybuilder->setObjectField('image');
         $this->querybuilder->setQueryType('query');
 
-        $output = $this->querybuilder->buildQuery();
+        // test query result when prettify is true
+        $outputPrettify = $this->querybuilder->buildQuery(true);
         $expected = <<<Query
 query {
 	image (id: "foo") {
@@ -86,6 +87,12 @@ query {
 	}
 }
 Query;
+
+        expect($outputPrettify)->equals($expected);
+
+        // test query result when prettify is false
+        $output = $this->querybuilder->buildQuery(false);
+        $expected = "query {\nimage (id: \"foo\") {\nid{\n123\n}\ntype\ndata{\nsize\ndate\n}\n}\n}";
         expect($output)->equals($expected);
     }
 
@@ -156,6 +163,46 @@ Query;
     }
 
     public function queryObjectProvider()
+    {
+        return [
+            'empty array passed in' => [
+                'queryObject' => [],
+                'expected' => '',
+            ],
+            'simple array, singular argument pass in' => [
+                'queryObject' => [
+                    'id',
+                    'type',
+                ],
+                'expected' => "id\ntype\n",
+            ],
+            'multi arguments array passed in' => [
+                'queryObject' => [
+                    'id' => 123,
+                    'type' => [
+                        'image',
+                        'video',
+                    ],
+                    'date',
+                ],
+                'expected' => "id{\n123\n}\ntype{\nimage\nvideo\n}\ndate\n",
+            ],
+        ];
+    }
+
+    /**
+     * testRenderQueryObjectPrettify tests that renderQueryObjectPrettify
+     *
+     * @covers ::renderQueryObjectPrettify()
+     * @dataProvider queryObjectPrettifyProvider
+     */
+    public function testRenderQueryObjectPrettify($queryObject, $expected)
+    {
+        $output = ReflectionHelper::invokePrivateMethod($this->querybuilder, 'renderQueryObjectPrettify', [$queryObject]);
+        expect($output)->equals($expected);
+    }
+
+    public function queryObjectPrettifyProvider()
     {
         return [
             'empty array passed in' => [

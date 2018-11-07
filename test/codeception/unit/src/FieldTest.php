@@ -57,7 +57,8 @@ class FieldTest extends \Codeception\Test\Unit
         $field->setArguments($arguments);
         $field->setObjectField($objectField);
 
-        $output = $field->buildQuery();
+        // test query result when prettify is true
+        $outputPrettify = $field->buildQuery(true);
         $expected = <<<Query
 alias:test (id: "foo") {
 	id{
@@ -70,6 +71,11 @@ alias:test (id: "foo") {
 	}
 }
 Query;
+        expect($outputPrettify)->equals($expected);
+
+        // test query result when prettify is false
+        $output = $field->buildQuery(false);
+        $expected = "alias:test (id: \"foo\") {\nid{\n123\n}\ntype\ndata{\nsize\ndate\n}\n}";
         expect($output)->equals($expected);
     }
 

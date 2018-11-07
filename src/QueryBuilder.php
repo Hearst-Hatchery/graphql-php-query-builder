@@ -40,16 +40,16 @@ class QueryBuilder
     /**
      * QueryBuilder constructor
      *
-     * @param array  $query
      * @param string $objectField
      * @param array  $arguments
+     * @param array  $query
      * @param string $queryType
      */
-    public function __construct($query = [], $objectField = '', $arguments = [], $queryType = self::TYPE_QUERY)
+    public function __construct($objectField = '', $arguments = [], $query = [], $queryType = self::TYPE_QUERY)
     {
-        $this->setQueryObject($query);
         $this->setObjectField($objectField);
         $this->setArguments($arguments);
+        $this->setQueryObject($query);
         $this->setQueryType($queryType);
     }
 
@@ -57,22 +57,25 @@ class QueryBuilder
      * buildQuery format query type, field, arguments and rendered query string to build full query
      * that can be used for requesting graphQL server
      *
+     * @param boolean $prettify
      * @param string $operationName
      * @return string GraphQl query string
      */
-    public function buildQuery($operationName = '')
+    public function buildQuery($prettify = false, $operationName = '')
     {
         if (empty($this->queryObject)) {
             return '';
         }
 
+        $tab = $prettify === true ? "\t" : '';
+
         $graphQLQuery = $this->queryType ? $this->queryType . ' ' : 'query ';
         $graphQLQuery .= $operationName ? $operationName : '';
 
-        $graphQLQuery .= "{\n\t" . $this->objectField;
+        $graphQLQuery .= "{\n" . $tab . $this->objectField;
         $graphQLQuery .= $this->arguments ? ' ' . $this->formatArguments($this->arguments) . "{\n" : "{\n";
-        $graphQLQuery .= $this->renderQueryObject($this->queryObject, 2);
-        $graphQLQuery .= "\t}\n}";
+        $graphQLQuery .= $prettify === true ? $this->renderQueryObjectPrettify($this->queryObject, 2) : $this->renderQueryObject($this->queryObject);
+        $graphQLQuery .= $tab . "}\n}";
 
         return $graphQLQuery;
     }
@@ -81,10 +84,39 @@ class QueryBuilder
      * renderQueryObject loop through given query array and convert into graphQL query format string
      *
      * @param array $query
+     * @return string rendered query string
+     */
+    protected function renderQueryObject($query = [])
+    {
+        $queryString = '';
+
+        foreach ($query as $queryField => $queryFieldValue) {
+            // recursive loop through every node
+            if (!is_numeric($queryField)) {
+                $queryString .= $queryField . "{\n";
+
+                if (is_array($queryFieldValue)) {
+                    $queryString .= $this->renderQueryObject($queryFieldValue);
+                } else {
+                    $queryString .= $queryFieldValue . "\n";
+                }
+                $queryString .= "}\n" ;
+            } else {
+                $queryString .= $queryFieldValue . "\n";
+            }
+        }
+
+        return $queryString;
+    }
+
+    /**
+     * renderQueryObjectPrettify loop through given query array and convert into graphQL query format string
+     *
+     * @param array $query
      * @param int $tabCount
      * @return string rendered query string
      */
-    protected function renderQueryObject($query = [], $tabCount = 0)
+    protected function renderQueryObjectPrettify($query = [], $tabCount = 0)
     {
         $queryString = '';
         $tab = "\t";
@@ -96,7 +128,7 @@ class QueryBuilder
                 $tabCount++;
 
                 if (is_array($queryFieldValue)) {
-                    $queryString .= $this->renderQueryObject($queryFieldValue, $tabCount);
+                    $queryString .= $this->renderQueryObjectPrettify($queryFieldValue, $tabCount);
                 } else {
                     $queryString .= str_repeat($tab, $tabCount) . $queryFieldValue . "\n";
                 }

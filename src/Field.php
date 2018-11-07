@@ -43,11 +43,11 @@ class Field extends QueryBuilder
      * buildQuery format query type, field, arguments and rendered query string to build full query
      * that can be used for requesting graphQL server
      *
-     * @param string $operationName
+     * @param boolean $prettify
      * @param int $depth
      * @return string GraphQl query string
      */
-    public function buildQuery($operationName = '', $depth = 1)
+    public function buildQuery($prettify = false, $depth = 1)
     {
         if (empty($this->queryObject)) {
             return '';
@@ -56,8 +56,8 @@ class Field extends QueryBuilder
         $fieldQuery = $this->alias ? $this->alias . ':' : '';
         $fieldQuery .= $this->objectField;
         $fieldQuery .= $this->arguments ? ' ' . $this->formatArguments($this->arguments) . "{\n" : "{\n";
-        $fieldQuery .= $this->renderQueryObject($this->queryObject, $depth);
-        $fieldQuery .= str_repeat("\t", $depth - 1) . '}';
+        $fieldQuery .= $prettify === true ? $this->renderQueryObjectPrettify($this->queryObject, $depth) . str_repeat("\t", $depth - 1) : $this->renderQueryObject($this->queryObject);
+        $fieldQuery .= '}';
 
         return $fieldQuery;
     }
