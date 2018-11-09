@@ -1,4 +1,5 @@
 <?php
+
 namespace GraphQLQueryBuilder;
 
 /**
@@ -16,10 +17,10 @@ class QueryBuilder
     protected $queryObject;
 
     /**
-     * String of graphQL fields that can refer to Objects
+     * String of graphQL objectField that can refer to Objects type defined in graphql server
      * @var string
      */
-    protected $fields;
+    protected $objectField;
 
     /**
      * Set of arguments for fetching data eg. content(ID: '1234')
@@ -31,43 +32,50 @@ class QueryBuilder
      * String of graphQL request type that can
      * @var string
      */
-    protected $type;
+    protected $queryType;
 
-    // TODO: Add Fragments & Variables for full query and mutation
     const TYPE_QUERY = 'query';
     const TYPE_MUTATION = 'mutation';
 
     /**
      * QueryBuilder constructor
      *
-     * @param array $query
-     * @param string $fields
-     * @param array $arguments
-     * @param string $type
+     * @param string $objectField
+     * @param array  $arguments
+     * @param array  $query
+     * @param string $queryType
      */
-    public function __construct($query = [], $fields = '', $arguments = [], $type = self::TYPE_QUERY)
+    public function __construct($objectField = '', $arguments = [], $query = [], $queryType = self::TYPE_QUERY)
     {
-        $this->setQueryObject($query);
-        $this->setFields($fields);
+        $this->setObjectField($objectField);
         $this->setArguments($arguments);
-        $this->setType($type);
+        $this->setQueryObject($query);
+        $this->setQueryType($queryType);
     }
 
     /**
      * buildQuery format query type, field, arguments and rendered query string to build full query
      * that can be used for requesting graphQL server
+     *
+     * @param boolean $prettify
+     * @param string $operationName
      * @return string GraphQl query string
      */
-    public function buildQuery()
+    public function buildQuery($prettify = false, $operationName = '')
     {
         if (empty($this->queryObject)) {
             return '';
         }
 
-        $graphQLQuery = "{\n\t" . $this->fields;
+        $tab = $prettify === true ? "\t" : '';
+
+        $graphQLQuery = $this->queryType ? $this->queryType . ' ' : 'query ';
+        $graphQLQuery .= $operationName ? $operationName : '';
+
+        $graphQLQuery .= "{\n" . $tab . $this->objectField;
         $graphQLQuery .= $this->arguments ? ' ' . $this->formatArguments($this->arguments) . "{\n" : "{\n";
-        $graphQLQuery .= $this->renderQueryObject($this->queryObject, 2);
-        $graphQLQuery .= "\t}\n}";
+        $graphQLQuery .= $prettify === true ? $this->renderQueryObjectPrettify($this->queryObject, 2) : $this->renderQueryObject($this->queryObject);
+        $graphQLQuery .= $tab . "}\n}";
 
         return $graphQLQuery;
     }
@@ -76,10 +84,39 @@ class QueryBuilder
      * renderQueryObject loop through given query array and convert into graphQL query format string
      *
      * @param array $query
+     * @return string rendered query string
+     */
+    protected function renderQueryObject($query = [])
+    {
+        $queryString = '';
+
+        foreach ($query as $queryField => $queryFieldValue) {
+            // recursive loop through every node
+            if (!is_numeric($queryField)) {
+                $queryString .= $queryField . "{\n";
+
+                if (is_array($queryFieldValue)) {
+                    $queryString .= $this->renderQueryObject($queryFieldValue);
+                } else {
+                    $queryString .= $queryFieldValue . "\n";
+                }
+                $queryString .= "}\n" ;
+            } else {
+                $queryString .= $queryFieldValue . "\n";
+            }
+        }
+
+        return $queryString;
+    }
+
+    /**
+     * renderQueryObjectPrettify loop through given query array and convert into graphQL query format string
+     *
+     * @param array $query
      * @param int $tabCount
      * @return string rendered query string
      */
-    protected function renderQueryObject($query = [], $tabCount = 0)
+    protected function renderQueryObjectPrettify($query = [], $tabCount = 0)
     {
         $queryString = '';
         $tab = "\t";
@@ -91,7 +128,7 @@ class QueryBuilder
                 $tabCount++;
 
                 if (is_array($queryFieldValue)) {
-                    $queryString .= $this->renderQueryObject($queryFieldValue, $tabCount);
+                    $queryString .= $this->renderQueryObjectPrettify($queryFieldValue, $tabCount);
                 } else {
                     $queryString .= str_repeat($tab, $tabCount) . $queryFieldValue . "\n";
                 }
@@ -116,9 +153,9 @@ class QueryBuilder
             $formattedArgument = [];
             foreach ($arguments as $name => $type) {
                 if (is_array($type)) {
-                    $type = '["' . implode('","', $type) . '"]';
+                    $type = gettype($type) === 'string' ? '["' . implode('","', $type) . '"]' : '[' . implode(',', $type) . ']' ;
                 } else {
-                    $type = '"' . $type . '"';
+                    $type = gettype($type) === 'string' ? '"' . $type . '"' : $type ;
                 }
                 $formattedArgument[] = $name . ': ' . $type;
             }
@@ -138,12 +175,12 @@ class QueryBuilder
     }
 
     /**
-     * @param string $fields
+     * @param string $objectField
      * @return QueryBuilder
      */
-    public function setFields($fields)
+    public function setObjectField($objectField)
     {
-        $this->fields = $fields ?? '';
+        $this->objectField = $objectField ?? '';
         return $this;
     }
 
@@ -158,12 +195,12 @@ class QueryBuilder
     }
 
     /**
-     * @param string $type
+     * @param string $queryType
      * @return QueryBuilder
      */
-    public function setType($type)
+    public function setQueryType($queryType)
     {
-        $this->type = $type ?? '';
+        $this->queryType = $queryType ?? '';
         return $this;
     }
 }

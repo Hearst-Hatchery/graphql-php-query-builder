@@ -39,7 +39,7 @@ class QueryBuilderTest extends \Codeception\Test\Unit
                 // Verify this method was called
                 verify(true)->true();
             },
-            'setFields' => function () {
+            'setObjectField' => function () {
                 // Verify this method was called
                 verify(true)->true();
             },
@@ -47,7 +47,7 @@ class QueryBuilderTest extends \Codeception\Test\Unit
                 // Verify this method was called
                 verify(true)->true();
             },
-            'setType' => function () {
+            'setQueryType' => function () {
                 // Verify this method was called
                 verify(true)->true();
             },
@@ -63,18 +63,19 @@ class QueryBuilderTest extends \Codeception\Test\Unit
      */
     public function testBuildQuery()
     {
-        $arguments = ['id' => 123];
+        $arguments = ['id' => 'foo'];
         $object = ['id' => 123, 'type', 'data' => ['size', 'date']];
 
         $this->querybuilder->setQueryObject($object);
         $this->querybuilder->setArguments($arguments);
-        $this->querybuilder->setFields('image');
-        $this->querybuilder->setType('query');
+        $this->querybuilder->setObjectField('image');
+        $this->querybuilder->setQueryType('query');
 
-        $output = $this->querybuilder->buildQuery();
+        // test query result when prettify is true
+        $outputPrettify = $this->querybuilder->buildQuery(true);
         $expected = <<<Query
-{
-	image (id: "123") {
+query {
+	image (id: "foo") {
 		id{
 			123
 		}
@@ -86,6 +87,12 @@ class QueryBuilderTest extends \Codeception\Test\Unit
 	}
 }
 Query;
+
+        expect($outputPrettify)->equals($expected);
+
+        // test query result when prettify is false
+        $output = $this->querybuilder->buildQuery(false);
+        $expected = "query {\nimage (id: \"foo\") {\nid{\n123\n}\ntype\ndata{\nsize\ndate\n}\n}\n}";
         expect($output)->equals($expected);
     }
 
@@ -126,7 +133,7 @@ Query;
             ],
             'simple array, singular argument pass in' => [
                 'arguments' => [
-                    'id' => 123,
+                    'id' => '123',
                 ],
                 'expected' => '(id: "123") ',
             ],
@@ -138,13 +145,13 @@ Query;
                     ],
                     'type' => 'image',
                 ],
-                'expected' => '(ids: ["123","456"], type: "image") ',
+                'expected' => '(ids: [123,456], type: "image") ',
             ],
         ];
     }
 
     /**
-     * testRenderQueryObject tests that renderQueryObject
+     * testRenderQueryObject tests that renderQueryObject format array object into graphql query without tabs
      *
      * @covers ::renderQueryObject()
      * @dataProvider queryObjectProvider
@@ -178,17 +185,58 @@ Query;
                     ],
                     'date',
                 ],
+                'expected' => "id{\n123\n}\ntype{\nimage\nvideo\n}\ndate\n",
+            ],
+        ];
+    }
+
+    /**
+     * testRenderQueryObjectPrettify tests that renderQueryObjectPrettify format array object into
+     * pretty graphql format string with tabs
+     *
+     * @covers ::renderQueryObjectPrettify()
+     * @dataProvider queryObjectPrettifyProvider
+     */
+    public function testRenderQueryObjectPrettify($queryObject, $expected)
+    {
+        $output = ReflectionHelper::invokePrivateMethod($this->querybuilder, 'renderQueryObjectPrettify', [$queryObject]);
+        expect($output)->equals($expected);
+    }
+
+    public function queryObjectPrettifyProvider()
+    {
+        return [
+            'empty array passed in' => [
+                'queryObject' => [],
+                'expected' => '',
+            ],
+            'simple array, singular argument pass in' => [
+                'queryObject' => [
+                    'id',
+                    'type',
+                ],
+                'expected' => "id\ntype\n",
+            ],
+            'multi arguments array passed in' => [
+                'queryObject' => [
+                    'id' => 123,
+                    'type' => [
+                        'image',
+                        'video',
+                    ],
+                    'date',
+                ],
                 'expected' => "id{\n\t123\n}\ntype{\n\timage\n\tvideo\n}\ndate\n",
             ],
         ];
     }
 
     /**
-     * testSetObject tests that setObject set array object to current QueryBuilder
+     * testSetQueryObject tests that setObject set array object to current QueryBuilder
      *
      * @covers ::setQueryObject()
      */
-    public function testSetObject()
+    public function testSetQueryObject()
     {
         $object = ['id' => 123, 'data'];
         $output = $this->querybuilder->setQueryObject($object);
@@ -196,14 +244,14 @@ Query;
     }
 
     /**
-     * testSetField tests that setFields set field string to current QueryBuilder
+     * testSetObjectField tests that setObjectField set field string to current QueryBuilder
      *
-     * @covers ::setFields()
+     * @covers ::setObjectField()
      */
-    public function testSetFields()
+    public function testSetObjectField()
     {
         $field = 'foo';
-        $output = $this->querybuilder->setFields($field);
+        $output = $this->querybuilder->setObjectField($field);
         verify($output)->equals($this->querybuilder);
     }
 
@@ -220,14 +268,14 @@ Query;
     }
 
     /**
-     * testSetType tests that setType set type string to current QueryBuilder
+     * testSetQueryType tests that setQueryType set type string to current QueryBuilder
      *
-     * @covers ::setType()
+     * @covers ::setQueryType()
      */
-    public function testSetType()
+    public function testSetQueryType()
     {
         $type = 'query';
-        $output = $this->querybuilder->setType($type);
+        $output = $this->querybuilder->setQueryType($type);
         verify($output)->equals($this->querybuilder);
     }
 }
