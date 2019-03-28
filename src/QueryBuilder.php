@@ -158,7 +158,6 @@ class QueryBuilder
                     } else {
                         $type = '[' . implode(',', $type) . ']' ;
                     }
-                    // $type = gettype($type) === 'string' ? '["' . implode('","', $type) . '"]' : '[' . implode(',', $type) . ']' ;
                 } else {
                     $type = gettype($type) === 'string' ? '"' . $type . '"' : $type ;
                 }
