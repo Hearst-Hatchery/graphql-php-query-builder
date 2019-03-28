@@ -147,6 +147,16 @@ Query;
                 ],
                 'expected' => '(ids: [123,456], type: "image") ',
             ],
+            'multi arguments string array passed in' => [
+                'arguments' => [
+                    'ids' => [
+                        '123',
+                        '456',
+                    ],
+                    'type' => 'image',
+                ],
+                'expected' => '(ids: ["123","456"], type: "image") ',
+            ],
         ];
     }
 
