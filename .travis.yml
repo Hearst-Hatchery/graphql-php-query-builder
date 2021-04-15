@@ -19,6 +19,3 @@ script:
   - composer build
   - phpenv config-add /tmp/xdebug.ini # reenable xdebug for coverage
   - composer coverage-xml
-
-after_success:
-  - bash <(curl -s https://codecov.io/bash) -f ./test/codeception/_output/coverage.xml
