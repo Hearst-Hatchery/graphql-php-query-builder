@@ -9,6 +9,9 @@ cache:
     - $HOME/.composer/cache/files
     - $HOME/.composer/cache/vcs
 
+before_install:
+  - composer self-update 1.10.21
+
 install:
   - cp $HOME/.phpenv/versions/$(phpenv global)/etc/conf.d/xdebug.ini /tmp # copy xdebug
   - phpenv config-rm xdebug.ini # remove xdebug for faster composer commands
