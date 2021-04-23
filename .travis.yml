@@ -2,11 +2,15 @@ language: php
 
 php:
   - 7.1
+  - 7.2
 
 cache:
   directories:
     - $HOME/.composer/cache/files
     - $HOME/.composer/cache/vcs
+
+before_install:
+  - composer self-update 1.10.21
 
 install:
   - cp $HOME/.phpenv/versions/$(phpenv global)/etc/conf.d/xdebug.ini /tmp # copy xdebug
@@ -19,6 +23,3 @@ script:
   - composer build
   - phpenv config-add /tmp/xdebug.ini # reenable xdebug for coverage
   - composer coverage-xml
-
-after_success:
-  - bash <(curl -s https://codecov.io/bash) -f ./test/codeception/_output/coverage.xml

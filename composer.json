@@ -13,7 +13,9 @@
             "email": "di.tang@hearst.com"
         }
     ],
-    "require": {},
+    "require": {
+        "php": "^7.1"
+    },
     "require-dev": {
         "codeception/verify": "^1.0",
         "codeception/base": "^2.5",
